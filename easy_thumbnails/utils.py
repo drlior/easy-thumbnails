@@ -4,20 +4,23 @@ import datetime
 import os
 
 from django.utils.functional import LazyObject
+from past.types import basestring
 
 try:
     from hashlib import md5 as md5_constructor
 except ImportError:
-    from django.utils.hashcompat import md5_constructor
+    try:
+        from django.utils.hashcompat import md5_constructor
+    except ImportError:
+        pass
 
-try:
-    from PIL import Image
-except ImportError:
-    import Image
+from PIL import Image
 
 try:
     from django.utils import timezone
+
     now = timezone.now
+
 
     def make_time_zone_aware(dt):
         if getattr(settings, 'USE_TZ', False):
@@ -100,7 +103,7 @@ def get_storage_hash(storage):
     if not isinstance(storage, basestring):
         storage_cls = storage.__class__
         storage = '%s.%s' % (storage_cls.__module__, storage_cls.__name__)
-    return md5_constructor(storage).hexdigest()
+    return md5_constructor(storage.encode()).hexdigest()
 
 
 def is_transparent(image):
@@ -150,7 +153,7 @@ def get_modified_time(storage, name):
     try:
         try:
             return storage.modified_time(name)
-        except AttributeError: # older storage interface didn't have "modified_time"
+        except AttributeError:  # older storage interface didn't have "modified_time"
             path = storage.path(name)
             return datetime.datetime.fromtimestamp(os.path.getmtime(path))
     except OSError:

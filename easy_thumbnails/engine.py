@@ -6,10 +6,9 @@ except ImportError:
         from StringIO import StringIO
     except ImportError:
         pass
-try:
-    from PIL import Image
-except ImportError:
-    import Image
+
+from PIL import Image
+
 
 from easy_thumbnails import utils
 from easy_thumbnails.conf import settings
