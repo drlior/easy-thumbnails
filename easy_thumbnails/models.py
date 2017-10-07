@@ -4,6 +4,8 @@ from easy_thumbnails import utils, signal_handlers
 
 
 class FileManager(models.Manager):
+    class Meta:
+        app_label = "easy_thumbnails"
 
     def get_file(self, storage, name, create=False, update_modified=None,
                  check_cache_miss=False, **kwargs):
@@ -35,15 +37,16 @@ class FileManager(models.Manager):
 
 
 class File(models.Model):
+    class Meta:
+        app_label = "easy_thumbnails"
+        abstract = True
+        unique_together = (('storage_hash', 'name'),)
+
     storage_hash = models.CharField(max_length=40, db_index=True)
     name = models.CharField(max_length=255, db_index=True)
     modified = models.DateTimeField(default=utils.now)
 
     objects = FileManager()
-
-    class Meta:
-        abstract = True
-        unique_together = (('storage_hash', 'name'),)
 
     def __unicode__(self):
         return self.name
@@ -57,7 +60,9 @@ class Thumbnail(File):
     source = models.ForeignKey(Source, related_name='thumbnails')
 
     class Meta:
+        app_label = "easy_thumbnails"
         unique_together = (('storage_hash', 'name', 'source'),)
+
 
 
 models.signals.pre_save.connect(signal_handlers.find_uncommitted_filefields)

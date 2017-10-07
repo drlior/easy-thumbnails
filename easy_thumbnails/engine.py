@@ -2,8 +2,10 @@ import os
 try:
     from cStringIO import StringIO
 except ImportError:
-    from StringIO import StringIO
-
+    try:
+        from StringIO import StringIO
+    except ImportError:
+        pass
 try:
     from PIL import Image
 except ImportError:
